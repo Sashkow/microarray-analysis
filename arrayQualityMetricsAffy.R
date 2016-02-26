@@ -1,9 +1,15 @@
-
+setwd("~/a/data")
 source("http://bioconductor.org/biocLite.R")
 biocLite()
 biocLite("arrayQualityMetrics")
+biocLite("nugohs1a520180hsentrezg.db")
+library(nugohs1a520180cdf)
+library(nugohs1a520180hsentrezg.db)
+
 biocLite("sva")
+
 gseString = "GSE53291"
+
 
 gseUntaredFolder = paste(gseString,  "_untared", sep = "")
 celFilesPath = paste("~/a/data", gseUntaredFolder, sep = "/")
@@ -12,7 +18,9 @@ setwd(celFilesPath)
 library(affy)
 library(sva)
 pd = read.AnnotatedDataFrame(filename="pheno.txt")
-afyData = affy::ReadAffy(phenoData=pd, sampleNames=pd$SampleAccessionNumber)
+affyData = affy::ReadAffy(phenoData=pd,
+                          sampleNames=pd$SampleAccessionNumber,
+                          cdfname = "NuGO_Hs1a520180")
 head(featureNames(affyData)) # probe_ids
 
 
@@ -30,9 +38,6 @@ nexprs <- affy::rma(affyData)
 # exprs(exprs) <- combat_edata
 
 arrayQualityMetrics::arrayQualityMetrics(expressionset = exprs,
-                                         outdir = "QC_affy",
+                                         outdir = "QC_affy_custom_cdf",
                                          force = TRUE,
-                                         do.logtransform = FALSE,
-                                         intgroup = "Target")
-
-
+                                         do.logtransform = FALSE)
