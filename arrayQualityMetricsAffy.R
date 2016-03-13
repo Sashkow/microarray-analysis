@@ -35,9 +35,11 @@ exprs_frame <- data.frame(exprs)
 
 library(AnnotationDbi)
 probesetsID<-rownames(exprs)
-length(probesetsID) # amount of annotated probesets in library 17451
+length(contents(nugohs1a520180hsentrezgSYMBOL)) # amount of probesets in annotation library 17451
 probesetsID_EntrezID<-select(nugohs1a520180hsentrezg.db, probesetsID, "ENTREZID")
-length(probesetsID_EntrezID$PROBEID) # amount of annotated probesets in library 17451
+length(probesetsID_EntrezID$PROBEID) # amount of annotated probesets in microarray 17451
+
+
 
 all <- merge(probesetsID_EntrezID, exprs_frame, by.x=0, by.y=0, all=T)
 
