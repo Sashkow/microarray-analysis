@@ -27,11 +27,6 @@ affyBatch = affy::ReadAffy(phenoData=pd,
                           cdfname = "nugohs1a520180_hs_entrezg")
 
 cel_table = read.table("GSM1289002_Placenta_CON_female_1.CEL")
-<<<<<<< HEAD
-nrow(cel_table)   # 21933 rows in cel file=probes in cel file?
-=======
-nrow(cel_table)   # 21933 rows in cel file?
->>>>>>> cef4df7ab239bb8f92e21fc65b72d0c37e2ae446
 
 # according to ncbi the platform has 18525 probesets
 length(featureNames(affyBatch))                 # 17451 named probesets amount?
@@ -46,14 +41,10 @@ nrow(affyBatch.rma@assayData$exprs)             # probeset amnt 17451
 
 library(AnnotationDbi)
 probesetsID<-rownames(exprs@assayData$exprs)
-<<<<<<< HEAD
-length(keys(nugohs1a520180hsentrezg.db, "SYMBOL")) # amount of probesets in annotation library or 59476
-=======
+
 length(probesetsID)
-length(contents(nugohs1a520180hsentrezgSYMBOL)) # amount of probesets in annotation library 17451
-length(keys(nugohs1a520180hsentrezg.db, "SYMBOL")) # or 59476
->>>>>>> cef4df7ab239bb8f92e21fc65b72d0c37e2ae446
-length(keys(nugohs1a520180hsentrezg.db, "ENTREZID")) # or 17349, depends on mapping
+length(keys(nugohs1a520180hsentrezg.db, "SYMBOL")) #  59476
+length(keys(nugohs1a520180hsentrezg.db, "ENTREZID")) # 17349, probesets amnt depends on mapping
 probesetsID_EntrezID<-select(nugohs1a520180hsentrezg.db, probesetsID, "ENTREZID")
 length(probesetsID_EntrezID$PROBEID) # amount of annotated probesets in microarray 17451
 
