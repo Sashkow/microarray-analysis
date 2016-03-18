@@ -22,41 +22,39 @@ library(affy)
 library(sva)
 
 pd = read.AnnotatedDataFrame(filename="pheno.txt")
-affyData = affy::ReadAffy(phenoData=pd,
+affyBatch = affy::ReadAffy(phenoData=pd,
                           sampleNames=pd$SampleAccessionNumber,
                           cdfname = "nugohs1a520180_hs_entrezg")
 
-length(affyData@assayData$exprs) # probes amnt
+cel_table = read.table("GSM1289002_Placenta_CON_female_1.CEL")
+nrow(cel_table)   # 21933 rows in cel file?
 
-exprs <- affy::rma(affyData)
-length(exprs@assayData$exprs) # probesets amnt
+# according to ncbi the platform has 18525 probesets
+length(featureNames(affyBatch))                 # 17451 named probesets amount?
+nrow(affyBatch@assayData$exprs)                 # 535824 probes amount?
 
-exprs_frame <- data.frame(exprs)
+affyBatch.rma <- affy::rma(affyBatch)
+
+affyBatch.rma@featureData@data                  # probesets amnt 17451
+length(rownames(affyBatch.rma@assayData$exprs)) # unique probeset names amnt 17451
+nrow(affyBatch.rma@assayData$exprs)             # probeset amnt 17451
+
 
 library(AnnotationDbi)
-probesetsID<-rownames(exprs)
+probesetsID<-rownames(exprs@assayData$exprs)
+length(probesetsID)
 length(contents(nugohs1a520180hsentrezgSYMBOL)) # amount of probesets in annotation library 17451
+length(keys(nugohs1a520180hsentrezg.db, "SYMBOL")) # or 59476
+length(keys(nugohs1a520180hsentrezg.db, "ENTREZID")) # or 17349, depends on mapping
 probesetsID_EntrezID<-select(nugohs1a520180hsentrezg.db, probesetsID, "ENTREZID")
 length(probesetsID_EntrezID$PROBEID) # amount of annotated probesets in microarray 17451
 
 
 
-all <- merge(probesetsID_EntrezID, exprs_frame, by.x=0, by.y=0, all=T)
-
-View(annot)
-View(all)
-
-
 design <- model.matrix(~0 + colnames(exprs))
-
 library(limma)
 fit <- lmFit(exprs(exprs), design)
 ebFit <- eBayes(fit)
-
-
-
-
-
 
 # exclude batch effect using day of experiment as a batch
 # pd$ScanDate <- substr(exprs@protocolData$ScanDate, 1, 10)
@@ -69,24 +67,9 @@ ebFit <- eBayes(fit)
 #                       prior.plots=FALSE)
 # exprs(exprs) <- combat_edata
 
-arrayQualityMetrics::arrayQualityMetrics(expressionset = exprs,
+arrayQualityMetrics::arrayQualityMetrics(expressionset = affyBatch.rma,
                                          outdir = "QC_affy_custom_cdf",
                                          force = TRUE,
                                          do.logtransform = FALSE,
                                          intgroup = "Target")
-
-strEndsWith <- function(haystack, needle)
-{
-  hl <- nchar(haystack)
-  nl <- nchar(needle)
-  if(nl>hl)
-  {
-    return(F)
-  } else
-  {
-    return(substr(haystack, hl-nl+1, hl) == needle)
-  }
-}
-
-
 
