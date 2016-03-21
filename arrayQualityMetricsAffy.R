@@ -23,31 +23,41 @@ library(sva)
 
 pd = read.AnnotatedDataFrame(filename="pheno.txt")
 affyBatch = affy::ReadAffy(phenoData=pd,
-                          sampleNames=pd$SampleAccessionNumber,
-                          cdfname = "nugohs1a520180_hs_entrezg")
+                          sampleNames=pd$SampleAccessionNumber)
+                        #  cdfname = "nugohs1a520180_hs_entrezg")
 
-cel_table = read.table("GSM1289002_Placenta_CON_female_1.CEL")
+cel_table = read.table("GSM12890
+                       02_Placenta_CON_female_1.CEL")
 
-# according to ncbi the platform has 18525 probesets
-length(featureNames(affyBatch))                 # 17451 named probesets amount?
-nrow(affyBatch@assayData$exprs)                 # 535824 probes amount?
+# according to ncbi the platform has 23941 probesets
+# according to ncbi the platform for custom cdf has 18525 probesets
+# following values are "standard/custom cdf"
+length(featureNames(affyBatch))                 # 23941/17451 probesets 
+nrow(affyBatch@assayData$exprs)                 # 535824/535824 probes
 
 affyBatch.rma <- affy::rma(affyBatch)
 
-affyBatch.rma@featureData@data                  # probesets amnt 17451
-length(rownames(affyBatch.rma@assayData$exprs)) # unique probeset names amnt 17451
-nrow(affyBatch.rma@assayData$exprs)             # probeset amnt 17451
+affyBatch.rma@featureData@data                  # 23941/17451 probesets 
+length(rownames(affyBatch.rma@assayData$exprs)) # 23941/17451 probesets 
+nrow(affyBatch.rma@assayData$exprs)             # 23941/17451 probesets 
 
 
 library(AnnotationDbi)
-probesetsID<-rownames(exprs@assayData$exprs)
+probesetsID<-rownames(affyBatch.rma@assayData$exprs)
 
+# custom cdf
 length(probesetsID)
 length(keys(nugohs1a520180hsentrezg.db, "SYMBOL")) #  59476
-length(keys(nugohs1a520180hsentrezg.db, "ENTREZID")) # 17349, probesets amnt depends on mapping
+length(keys(nugohs1a520180hsentrezg.db, "ENTREZID")) # 17349
 probesetsID_EntrezID<-select(nugohs1a520180hsentrezg.db, probesetsID, "ENTREZID")
-length(probesetsID_EntrezID$PROBEID) # amount of annotated probesets in microarray 17451
+length(probesetsID_EntrezID$PROBEID) # amount of annotated probesets in mapping 17451
 
+# standard cdf
+length(probesetsID)
+length(keys(nugohs1a520180.db, "SYMBOL")) # 59476
+length(keys(nugohs1a520180.db, "ENTREZID")) # 16922
+probesetsID_EntrezID<-select(nugohs1a520180.db, probesetsID, "ENTREZID")
+length(probesetsID_EntrezID$PROBEID) # amount of annotated probesets in mapping 24026
 
 
 design <- model.matrix(~0 + colnames(exprs))
